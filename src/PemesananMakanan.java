@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -24,6 +27,8 @@ class Menu {
         return harga;
     }
 }
+
+
 
 class Pesanan {
     private static int nomorPelanggan = 1;
@@ -65,12 +70,14 @@ public class PemesananMakanan {
     private static Scanner scanner = new Scanner(System.in);
     private static ArrayList<Menu> daftarMenu = inisialisasiMenu();
     private static ArrayList<Pesanan> pesananList = new ArrayList<>();
+    private static final String NAMA_FILE_INVOICE = "invoice.txt";
 
     public static void main(String[] args) {
         tampilkanMenu();
         pesanMakanan();
         tampilkanPesanan();
     }
+
 
     private static ArrayList<Menu> inisialisasiMenu() {
         ArrayList<Menu> daftarMenu = new ArrayList<>();
@@ -135,19 +142,35 @@ public class PemesananMakanan {
     }
 
     private static void tampilkanPesanan() {
-        System.out.println("\nPesanan Anda:");
-        for (Pesanan pesanan : pesananList) {
-            System.out.println("Nomor Pelanggan: " + pesanan.getNomorPesanan());
-            System.out.println("Pesanan Makanan:");
-            for (Menu menu : pesanan.pesananMakanan) {
-                System.out.println("- " + menu.getNamaMenu() + " - Rp. " + menu.getHarga());
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NAMA_FILE_INVOICE))) {
+            System.out.println("\nPesanan Anda:");
+            for (Pesanan pesanan : pesananList) {
+                writer.write("Nomor Pelanggan: " + pesanan.getNomorPesanan());
+                writer.newLine();
+                writer.write("Pesanan Makanan:");
+                writer.newLine();
+                for (Menu menu : pesanan.pesananMakanan) {
+                    writer.write("- " + menu.getNamaMenu() + " - Rp. " + menu.getHarga());
+                    writer.newLine();
+                }
+                writer.write("Pesanan Minuman:");
+                writer.newLine();
+                for (Menu menu : pesanan.pesananMinuman) {
+                    writer.write("- " + menu.getNamaMenu() + " - Rp. " + menu.getHarga());
+                    writer.newLine();
+                }
+                writer.write("Total Harga: Rp. " + pesanan.hitungTotalHarga());
+                writer.newLine();
+                writer.write("--------------------");
+                writer.newLine();
             }
-            System.out.println("Pesanan Minuman:");
-            for (Menu menu : pesanan.pesananMinuman) {
-                System.out.println("- " + menu.getNamaMenu() + " - Rp. " + menu.getHarga());
-            }
-            System.out.println("Total Harga: Rp. " + pesanan.hitungTotalHarga());
-            System.out.println("--------------------");
+            System.out.println("Pesanan Anda telah dicatat dalam file " + NAMA_FILE_INVOICE);
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
+
+
+
+
 }
